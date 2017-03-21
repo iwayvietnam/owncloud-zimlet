@@ -305,14 +305,6 @@ ownCloudZimlet.prototype.status =
  */
 ownCloudZimlet.saveAttachment =
   function(url, label) {
-    if(!tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['owncloud_zimlet_password'])
-    {
-       var zimletInstance = appCtxt._zimletMgr.getZimletByName('tk_barrydegraaff_owncloud_zimlet').handlerObject;
-       zimletInstance.status(ZmMsg.requiredLabel + ' ' + ZmMsg.password, ZmStatusView.LEVEL_INFO);
-       zimletInstance.displayDialog(1, ZmMsg.preferences, null);
-       return;
-    }
- 
     var zimletCtxt = appCtxt.getZimletMgr().getZimletByName('tk_barrydegraaff_owncloud_zimlet').handlerObject;
     zimletCtxt.saveAttachment(url, label);
   };
@@ -559,14 +551,6 @@ ownCloudZimlet.prototype.menuItemSelected =
  */
 ownCloudZimlet.prototype.doDrop =
   function(zmObjects) {
-
-    if(!tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['owncloud_zimlet_password'])
-    {
-       var zimletInstance = appCtxt._zimletMgr.getZimletByName('tk_barrydegraaff_owncloud_zimlet').handlerObject;
-       zimletInstance.status(ZmMsg.requiredLabel + ' ' + ZmMsg.password, ZmStatusView.LEVEL_INFO);
-       zimletInstance.displayDialog(1, ZmMsg.preferences, null);
-       return;
-    }
 
     var propfindCbk = new AjxCallback(
       this,
@@ -831,23 +815,7 @@ ownCloudZimlet.prototype.onSelectApp = function (appName) {
          /* first check if we have the user's password, and see if the app is already loaded */
          var app = appCtxt.getApp(appName);
          if (typeof this._appView === "undefined") {
-            if(!tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['owncloud_zimlet_password'])
-            {
-               this.passView = new DwtComposite(this.getShell()); 
-               this.passView.setSize("350", "150"); 
-               this.passView.getHtmlElement().innerHTML = '<input id="tk_barrydegraaff_owncloud_zimlet-mypass" type="password">';
-               /* TODO: a tickbox whether the user wants to save the password in LDAP (if allowed) */
-               this.passDialog = new ZmDialog({title: zimletInstance._zimletContext.getConfig("owncloud_zimlet_app_title")+ ' ' + ZmMsg.passwordLabel.replace(':',''), view:this.passView, parent:this.getShell(),  standardButtons:[DwtDialog.OK_BUTTON, DwtDialog.CANCEL_BUTTON], disposeOnPopDown: true});
-               this.passDialog.setButtonListener(DwtDialog.OK_BUTTON, new AjxListener(this, this._okPassListen, appName)); 
-               this.passDialog.setEnterListener(new AjxListener(this, this._okPassListen, appName));
-               this.passDialog.popup();
-               /* if we don't, the dialog will ask for it and the handler will continue the launch */
-            }
-            else
-            {
-               /* if we do have the password, we can start */
-               this.realLaunch(appName);
-            } 
+            this.realLaunch(appName);
          }
       }
    }
