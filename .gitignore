@@ -9,5 +9,4 @@ extension/docs/
 dist/
 extension/dav-soap-connector-extension.jar
 zimlet/tk_barrydegraaff_owncloud_zimlet.zip
-zimlet/config_template.xml
 owncloud-extension.tar.gz
