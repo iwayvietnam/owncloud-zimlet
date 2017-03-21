@@ -149,8 +149,8 @@ public class UploadHandler implements HttpHandler {
                         userProperties.get(ZimletProperty.DAV_SERVER_NAME),
                         Integer.parseInt(userProperties.get(ZimletProperty.DAV_SERVER_PORT)),
                         userProperties.get(ZimletProperty.DAV_SERVER_PATH),
-                        userProperties.get(ZimletProperty.DAV_USER_USERNAME),
-                        password
+                        account.getMail(),
+                        authTokenStr
                 );
 
 

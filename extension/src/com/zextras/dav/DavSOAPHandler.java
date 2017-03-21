@@ -14,6 +14,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Cookie;
+
 
 /**
  * SOAP Handler to interface a class which act as a client, with the SOAP infrastructure.
@@ -69,12 +72,24 @@ public class DavSOAPHandler implements SoapHandler
       return;
     }
 
+    String authToken = null;
+    HttpServletRequest servletRequest = zimbraContext.getHttpServletRequest();
+    Cookie[] cookies = servletRequest.getCookies();
+    for (int n = 0; n < cookies.length; n++) {
+        Cookie cookie = cookies[n];
+
+        if (cookie.getName().equals("ZM_AUTH_TOKEN")) {
+            authToken = cookie.getValue();
+            break;
+        }
+    }
+
     final DavSoapConnector connector = new DavSoapConnector(
       zimbraContext.getParameter("owncloud_zimlet_server_name", ""),
       Integer.parseInt(zimbraContext.getParameter("owncloud_zimlet_server_port", "")),
       zimbraContext.getParameter("owncloud_zimlet_server_path", ""),
-      zimbraContext.getParameter("owncloud_zimlet_username", ""),
-      zimbraContext.getParameter("owncloud_zimlet_password", "")
+      account.getMail(),
+      authToken
     );
 
     final String actionStr = zimbraContext.getParameter("action", "");
