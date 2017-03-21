@@ -942,16 +942,6 @@ ownCloudZimlet.prototype.displayDialog =
         var username = appCtxt.getActiveAccount().name.match(/.*@/);
         username = username[0].replace('@','');
 
-        var passwHtml = "";
-        if(tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['disable_password_storing']=="false")
-        {
-           passwHtml += "<tr><td>"+ZmMsg.save+" " +(ZmMsg.password).toLowerCase()+":</td><td><table><tr><td><input type='checkbox' id='owncloud_zimlet_store_pass' value='true' " + (zimletInstance.getUserProperty("owncloud_zimlet_store_pass")=='false' ? '' : 'checked') +"></td><td><small>If checked, the password is stored in plain text in Zimbra LDAP. <br>If not checked you have to provide password for each session.</small></td></tr></table></td></tr>";
-        }
-        else
-        {
-           passwHtml += "<tr><td style='color:#888888'>"+ZmMsg.save+" " +ZmMsg.password+":</td><td><table><tr><td><input type='checkbox' id='owncloud_zimlet_store_pass' value='true'  disabled></td><td><small style='color:#888888'>If checked, the password is stored in plain text in Zimbra LDAP. <br>If not checked you have to provide password for each session.</small></td></tr></table></td></tr>";
-        }     
-  
         var owncloud_zimlet_disable_ocs_public_link_shares = zimletInstance._zimletContext.getConfig("owncloud_zimlet_disable_ocs_public_link_shares");
         var hideOCSstyle="";
         if (owncloud_zimlet_disable_ocs_public_link_shares == 'true')
@@ -961,15 +951,7 @@ ownCloudZimlet.prototype.displayDialog =
 
         html = "<div style='width:600px; height: 350px;'>" +
           "<table>"+
-          "<tr>" +
-          "<td style='min-width:100px'>"+ZmMsg.usernameLabel+"</td>" +
-          "<td style='width:98%'><input style='width:98%' type='text' id='owncloud_zimlet_username' value='"+tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['owncloud_zimlet_username']+"'></td>" +
-          "</tr>" +
-          "<tr>" +
-          "<td>"+ZmMsg.passwordLabel+"</td>" +
-          "<td><input style='width:50%' type='password' onkeyup='ownCloudZimlet.prototype.verifyPassword()' id='owncloud_zimlet_password' value='"+(tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['owncloud_zimlet_password'] ? tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['owncloud_zimlet_password'] : '')+"'>&nbsp;<button id=\"showhide\" type=\"button\" onkeyup=\"ownCloudZimlet.prototype.toggle_password('owncloud_zimlet_password')\" onclick=\"ownCloudZimlet.prototype.toggle_password('owncloud_zimlet_password')\">"+(ZmMsg.show).toLowerCase() + '/' + (ZmMsg.hide).toLowerCase()+"</button><br><div id='WebDAVPasswordHint'></td>" +
-          "</tr>" +
-          "<tr>" + passwHtml + 
+          "<tr>" + 
           "<td>"+ZmMsg.sharedCalCalDAVServerLabel+"</td>" +
           "<td style='width:98%'><input style='width:98%' type='text' id='owncloud_zimlet_server_name' value='"+tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['owncloud_zimlet_server_name']+"'></td>" +
           "</tr>" +
@@ -1000,9 +982,6 @@ ownCloudZimlet.prototype.displayDialog =
         zimletInstance._dialog.setButtonListener(DwtDialog.OK_BUTTON, new AjxListener(zimletInstance, zimletInstance.prefSaveBtn));
         zimletInstance._dialog.setEnterListener(new AjxListener(zimletInstance, zimletInstance.prefSaveBtn));
         zimletInstance._dialog.setButtonListener(DwtDialog.CANCEL_BUTTON, new AjxListener(zimletInstance, zimletInstance.cancelBtn));
-        zimletInstance._dialog._tabGroup.addMember(document.getElementById('owncloud_zimlet_username'),0);
-        zimletInstance._dialog._tabGroup.addMember(document.getElementById('owncloud_zimlet_password'),1);
-        zimletInstance._dialog._tabGroup.addMember(document.getElementById('owncloud_zimlet_store_pass'),2);
         zimletInstance._dialog._tabGroup.addMember(document.getElementById('owncloud_zimlet_server_name'),3);
         zimletInstance._dialog._tabGroup.addMember(document.getElementById('owncloud_zimlet_server_port'),4);
         zimletInstance._dialog._tabGroup.addMember(document.getElementById('owncloud_zimlet_server_path'),5);
@@ -1133,18 +1112,12 @@ ownCloudZimlet.prototype.prefSaveBtn = function()
      // https://oc.example.com/ turns into https://oc.example.com
      serverName = serverName.substring(0, serverName.length - 1);
    }
-   if(document.getElementById("owncloud_zimlet_store_pass").checked)
-   {
-      if(tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['disable_password_storing']=="false")
-      {
-         this.setUserProperty("owncloud_zimlet_password", document.getElementById('owncloud_zimlet_password').value, false);
-      }   
-   }
-   else
-   {
-      this.setUserProperty("owncloud_zimlet_password", "", false);
-   }
-   tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['owncloud_zimlet_password'] = document.getElementById('owncloud_zimlet_password').value;
+
+   this.setUserProperty("owncloud_zimlet_username", '', false);
+   tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['owncloud_zimlet_username'] = '';
+
+   this.setUserProperty("owncloud_zimlet_password", "", false);
+   tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['owncloud_zimlet_password'] = '';
 
    if(document.getElementById("owncloud_zimlet_ask_folder_each_time").checked)
    {
@@ -1176,9 +1149,6 @@ ownCloudZimlet.prototype.prefSaveBtn = function()
 
    this.setUserProperty("owncloud_zimlet_server_path", document.getElementById('owncloud_zimlet_server_path').value, false);
    tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['owncloud_zimlet_server_path'] = document.getElementById('owncloud_zimlet_server_path').value;
-
-   this.setUserProperty("owncloud_zimlet_username", document.getElementById('owncloud_zimlet_username').value, false);
-   tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['owncloud_zimlet_username'] = document.getElementById('owncloud_zimlet_username').value;
 
    this.setUserProperty("owncloud_zimlet_default_folder", document.getElementById('owncloud_zimlet_default_folder').value, false);
    tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['owncloud_zimlet_default_folder'] = document.getElementById('owncloud_zimlet_default_folder').value;
