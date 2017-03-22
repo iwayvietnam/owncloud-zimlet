@@ -104,27 +104,6 @@ public class UploadHandler implements HttpHandler {
 
             final Map<String, String> userProperties = UserPropertyExtractor.getZimletUserProperties(account, Zimlet.NAME);
 
-            if (
-                    userProperties.get(ZimletProperty.DAV_SERVER_NAME) == null ||
-                            userProperties.get(ZimletProperty.DAV_SERVER_PORT) == null ||
-                            userProperties.get(ZimletProperty.DAV_SERVER_PATH) == null ||
-                            userProperties.get(ZimletProperty.DAV_USER_USERNAME) == null
-                    ) {
-                throw new RuntimeException("DAV Data connection not set for user '" + account.getName() + "'");
-            }
-
-            {
-                final URL serverUrl;
-                try {
-                    serverUrl = new URL(userProperties.get(ZimletProperty.DAV_SERVER_NAME));
-                } catch (MalformedURLException e) {
-                    throw new RuntimeException(e);
-                }
-                if (!UserPropertyExtractor.checkPermissionOnTarget(serverUrl, account)) {
-                    throw new RuntimeException("Proxy domain not allowed '" + serverUrl + "' for user '" + account.getName() + "'");
-                }
-            }
-
             ServletFileUpload upload = new ServletFileUpload(new DiskFileItemFactory());
             //hard coded upload limiit to 1GB
             upload.setSizeMax(1048576000);
@@ -135,6 +114,9 @@ public class UploadHandler implements HttpHandler {
 
                 String reqId = "";
                 String password = "";
+                String serverName = "";
+                String serverPort = "443";
+                String serverPath = "";
 
                 for (FileItem item : items) {
                     if (item.isFormField()) {
@@ -142,13 +124,25 @@ public class UploadHandler implements HttpHandler {
                             // correlate this file upload session's request and response
                             password = item.getString();
                         }
+                        if (item.getFieldName().equals("owncloud_zimlet_server_name")) {
+                            // correlate this file upload session's request and response
+                            serverName = item.getString();
+                        }
+                        if (item.getFieldName().equals("owncloud_zimlet_server_port")) {
+                            // correlate this file upload session's request and response
+                            serverPort = item.getString();
+                        }
+                        if (item.getFieldName().equals("owncloud_zimlet_server_path")) {
+                            // correlate this file upload session's request and response
+                            serverPath = item.getString();
+                        }
                     }
                 }
 
                 final DavSoapConnector connector = new DavSoapConnector(
-                        userProperties.get(ZimletProperty.DAV_SERVER_NAME),
-                        Integer.parseInt(userProperties.get(ZimletProperty.DAV_SERVER_PORT)),
-                        userProperties.get(ZimletProperty.DAV_SERVER_PATH),
+                        serverName,
+                        Integer.parseInt(serverPort),
+                        serverPath,
                         account.getMail(),
                         authTokenStr
                 );
@@ -178,10 +172,10 @@ public class UploadHandler implements HttpHandler {
                     Anyway, adding a work around for such use cases
                     */
 
-                    if ("80".equals(userProperties.get(ZimletProperty.DAV_SERVER_PORT)) || "443".equals(userProperties.get(ZimletProperty.DAV_SERVER_PORT))) {
+                    if ("80".equals(serverPort) || "443".equals(serverPort)) {
                         connector.put(
-                                paramsMap.get("path") + fileNameString,
-                                item.getInputStream()
+                            paramsMap.get("path") + fileNameString,
+                            item.getInputStream()
                         );
                     } else {
 
@@ -196,18 +190,18 @@ public class UploadHandler implements HttpHandler {
                         CloseableHttpClient httpClient = HttpClients.createDefault();
 
                         /* Prepare put request */
-                        String username = userProperties.get(ZimletProperty.DAV_USER_USERNAME);
+                        String username = account.getMail();
                         String path = paramsMap.get("path");
                         if ("/".equals(path)) {
-                            path = userProperties.get(ZimletProperty.DAV_SERVER_PATH);
+                            path = serverPath;
                         }
                         //to-do here it would be better to implement more encoding to the url to avoid URISyntaxException, however this is harder than it seems, as we must separate host/port and location parts
                         //for now just deal with spaces only.
-                        String url = userProperties.get(ZimletProperty.DAV_SERVER_NAME) + ":" + Integer.parseInt(userProperties.get(ZimletProperty.DAV_SERVER_PORT)) + path + fileNameString.replace(" ", "%20");
+                        String url = serverName + ":" + Integer.parseInt(serverPort) + path + fileNameString.replace(" ", "%20");
                         HttpPut httpPut = new HttpPut(url);
 
                         /* Add headers to get request */
-                        byte[] credentials = Base64.encodeBase64((uriDecode(username) + ":" + uriDecode(password)).getBytes());
+                        byte[] credentials = Base64.encodeBase64((uriDecode(username) + ":" + uriDecode(authTokenStr)).getBytes());
 
                         httpPut.addHeader("Authorization", "Basic " + new String(credentials));
                         /* Prepare StringEntity from inputStream */
