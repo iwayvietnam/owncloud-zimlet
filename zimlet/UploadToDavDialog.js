@@ -121,9 +121,14 @@ UploadToDavDialog.prototype._addFileInputRow = function() {
   var cellLabel = row.insertCell(-1);
   cellLabel.innerHTML = ZmMsg.fileLabel;
 
+  var settings = tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings;
+
   var cell1 = row.insertCell(-1);
   cell1.innerHTML = [
-    "<input id='", inputId, "' type='file' multiple name='", ZmUploadDialog.UPLOAD_FIELD_NAME, "' size=30><input type='hidden' name='password' value='"+  tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['owncloud_zimlet_password']+"'>"
+    "<input id='", inputId, "' type='file' multiple name='", ZmUploadDialog.UPLOAD_FIELD_NAME, "' size=30><input type='hidden' name='password' value='" + settings['owncloud_zimlet_password'] + "'>",
+    '<input type="hidden" name="owncloud_zimlet_server_name" value="'  + settings['owncloud_zimlet_server_name'] +  '">',
+    '<input type="hidden" name="owncloud_zimlet_server_port" value="'  + settings['owncloud_zimlet_server_port'] +  '">',
+    '<input type="hidden" name="owncloud_zimlet_server_path" value="'  + settings['owncloud_zimlet_server_path'] +  '">'
   ].join("");
 
   var cell2 = row.insertCell(-1);
