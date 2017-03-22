@@ -70,7 +70,7 @@ if [[ "$YNZIMLETDEV" == 'N' || "$YNZIMLETDEV" == 'n' ]];
 then
    echo "Not touching COS per user request."
 else
-   su - zimbra -c "zmzimletctl undeploy tk_barrydegraaff_owncloud_zimlet"
+   su - zimbra -c "zmzimletctl -l undeploy tk_barrydegraaff_owncloud_zimlet"
 fi
 
 TMPFOLDER="$(mktemp -d /tmp/webdav-client-installer.XXXXXXXX)"
@@ -129,16 +129,16 @@ cp urlrewritefilter-4.0.3.jar /opt/zimbra/lib/ext/ownCloud/
 # Here we set the template for config.properties, if upgrading we alter it further down
 echo "allowdomains=*
 disable_password_storing=false
-owncloud_zimlet_server_name=
-owncloud_zimlet_server_port=
-owncloud_zimlet_server_path=/owncloud/remote.php/webdav/
-owncloud_zimlet_oc_folder=/owncloud
+owncloud_zimlet_server_name=https\://idrive.sungroup.com.vn
+owncloud_zimlet_server_port=443
+owncloud_zimlet_server_path=/remote.php/webdav/
+owncloud_zimlet_oc_folder=
 owncloud_zimlet_default_folder=
 owncloud_zimlet_ask_folder_each_time=false
 owncloud_zimlet_disable_rename_delete_new_folder=false
 owncloud_zimlet_extra_toolbar_button_title=Open ownCloud tab
 owncloud_zimlet_extra_toolbar_button_url=/owncloud
-owncloud_zimlet_app_title=WebDAV
+owncloud_zimlet_app_title=OwnCloud
 owncloud_zimlet_max_upload_size=104857600
 owncloud_zimlet_preview_delay=200
 owncloud_zimlet_use_numbers=false
