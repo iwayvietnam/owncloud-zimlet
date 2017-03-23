@@ -356,15 +356,18 @@ ownCloudZimlet.prototype._saveAttachmentPropfindCbk =
   
    xmlHttp.onload = function(e) 
    {
-
+      var settings = tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings;
       form = new FormData(),
       request = new XMLHttpRequest();
       form.append("uploadFile",xmlHttp.response, ownCloudZimlet.prototype.sanitizeFileName(fileName));
-      form.append("password", tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['owncloud_zimlet_password']);
+      form.append("password", settings['owncloud_zimlet_password']);
+      form.append("owncloud_zimlet_server_name", settings['owncloud_zimlet_server_name']);
+      form.append("owncloud_zimlet_server_port", settings['owncloud_zimlet_server_port']);
+      form.append("owncloud_zimlet_server_path", settings['owncloud_zimlet_server_path']);
       request.open(
-      "POST",
-      "/service/extension/dav_upload/?path=/"+tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['owncloud_zimlet_default_folder'],
-      true
+        "POST",
+        "/service/extension/dav_upload/?path=/" + settings['owncloud_zimlet_default_folder'],
+        true
       );
       request.send(form);
    }
@@ -397,15 +400,19 @@ ownCloudZimlet.prototype._okBtnFolderSelect =
   
    xmlHttp.onload = function(e) 
    {
-
+      var settings = tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings;
       form = new FormData(),
       request = new XMLHttpRequest();
       form.append("uploadFile",xmlHttp.response, ownCloudZimlet.prototype.sanitizeFileName(fileName));
-      form.append("password", tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['owncloud_zimlet_password']);
+      form.append("password", settings['owncloud_zimlet_password']);
+      form.append("owncloud_zimlet_server_name", settings['owncloud_zimlet_server_name']);
+      form.append("owncloud_zimlet_server_port", settings['owncloud_zimlet_server_port']);
+      form.append("owncloud_zimlet_server_path", settings['owncloud_zimlet_server_path']);
+
       request.open(
-      "POST",
-      "/service/extension/dav_upload/?path=/"+selectedTargetFolder,
-      true
+        "POST",
+        "/service/extension/dav_upload/?path=/" + selectedTargetFolder,
+        true
       );
       request.send(form);
    }
@@ -621,11 +628,15 @@ ownCloudZimlet.prototype._doDropPropfindCbk = function(zmObjects, callback, erro
    if (!zmObjects[0]) {
       zmObjects = [zmObjects];
    }
-    
+
+   var settings = tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings;    
    var items = [];
    var index = 0;
    var form = new FormData();
-   form.append("password", tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['owncloud_zimlet_password']);
+   form.append("password", settings['owncloud_zimlet_password']);
+   form.append("owncloud_zimlet_server_name", settings['owncloud_zimlet_server_name']);
+   form.append("owncloud_zimlet_server_port", settings['owncloud_zimlet_server_port']);
+   form.append("owncloud_zimlet_server_path", settings['owncloud_zimlet_server_path']);
              
    for (iObj = 0; iObj < zmObjects.length; iObj += 1) {
       tmpObj = zmObjects[iObj];
@@ -700,13 +711,13 @@ ownCloudZimlet.prototype._doDropFetch = function (items, form)
 
 ownCloudZimlet.prototype._doDropUpload = function (form)
 {      
-   request = new XMLHttpRequest();
-   request.open(
-   "POST",
-   "/service/extension/dav_upload/?path=/"+tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['owncloud_zimlet_default_folder'],
-   true
-   );
-   request.send(form);
+  request = new XMLHttpRequest();
+  request.open(
+    "POST",
+    "/service/extension/dav_upload/?path=/"+tk_barrydegraaff_owncloud_zimlet_HandlerObject.settings['owncloud_zimlet_default_folder'],
+    true
+  );
+  request.send(form);
 }
 
 ownCloudZimlet.prototype._getItemNameByType =
